@@ -1,0 +1,48 @@
+CREATE DATABASE PMS_DB;
+USE PMS_DB;
+
+CREATE TABLE Habitaciones (
+    id_habitacion INT PRIMARY KEY,
+    tipo VARCHAR(20) NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'clean'
+);
+
+CREATE TABLE Clientes (
+    id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    documento VARCHAR(20) NOT NULL,
+    correo VARCHAR(100),
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE Usuarios (
+    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
+    rol VARCHAR(50) NOT NULL,
+    permisos VARCHAR(100) NOT NULL,
+    contrasena VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Reservas (
+    id_reserva INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT,
+    id_habitacion INT,
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
+    notas VARCHAR(255),
+    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
+    FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion)
+);
+
+INSERT INTO Habitaciones (id_habitacion, tipo) VALUES
+(1, 'TWIN'), (2, 'TWIN'), (3, 'TWIN'), (4, 'TWIN'), (5, 'TWIN'),
+(6, 'KING'), (7, 'KING'), (8, 'KING'), (9, 'KING'), (10, 'KING'),
+(11, 'SUPERIOR'), (12, 'SUPERIOR'),
+(14, 'SUITE'), (15, 'SUITE');
+
+INSERT INTO Usuarios (nombre, rol, permisos, contrasena) VALUES
+('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas', 'Administrador'),
+('Reservas', 'Encargado de Reservas', 'gestion_clientes,gestion_reservas', 'Reservas'),
+('Recepcionista', 'Recepcionista', 'gestion_reservas', 'Recepcionista'),
+('Housekeeping', 'Personal de Housekeeping', 'modificar_habitaciones', 'Housekeeping'),
+('Direccion', 'Direccion', 'ver_reportes', 'Direccion');

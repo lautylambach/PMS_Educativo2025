@@ -1,0 +1,5 @@
+DELETE FROM Clientes;
+DELETE FROM Reservas;
+
+SELECT * FROM Clientes;
+SELECT * FROM Reservas;

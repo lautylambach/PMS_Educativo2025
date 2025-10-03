@@ -1,0 +1,10 @@
+INSERT INTO Clientes (nombre, documento, correo, telefono) VALUES
+('Juan Pérez', '12345678', 'juan.perez@email.com', '123-456-7890'),
+('María Gómez', '87654321', 'maria.gomez@email.com', '987-654-3210'),
+('Carlos López', '11223344', 'carlos.lopez@email.com', '555-123-4567'),
+('Ana Martínez', '44332211', 'ana.martinez@email.com', '444-987-6543'),
+('Pedro Sánchez', '55667788', 'pedro.sanchez@email.com', '666-555-4444');
+
+INSERT INTO Reservas (id_cliente, id_habitacion, check_in, check_out, notas) VALUES
+(1, 1, '2025-10-03', '2025-10-05', 'Reserva para evento'),
+(1, 2, '2025-10-06', '2025-10-08', 'Reserva familiar');
