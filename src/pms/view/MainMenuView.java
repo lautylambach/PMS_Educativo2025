@@ -25,6 +25,13 @@ public class MainMenuView extends JFrame {
             btnReportes.setEnabled(false); // Solo Administrador genera reportes
         }
 
+        btnUsuarios.addActionListener(e -> {
+            if ("Administrador".equals(rol)) {
+                UsuarioView usuarioView = new UsuarioView();
+                usuarioView.setVisible(true);
+            }
+        });
+
         panel.add(btnUsuarios);
         panel.add(btnHabitaciones);
         panel.add(btnClientes);
