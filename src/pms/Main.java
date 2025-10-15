@@ -66,10 +66,15 @@ public class Main {
                     "estado VARCHAR(20) NOT NULL DEFAULT 'clean')");
 
                 stmt.executeUpdate("INSERT IGNORE INTO Usuarios (nombre, rol, permisos, contrasena) VALUES " +
-                    "('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas', 'admin123'), " +
-                    "('Recepcionista', 'Recepcionista', 'gestion_reservas', 'recep123')");
-                stmt.executeUpdate("INSERT IGNORE INTO Habitaciones (id_habitacion, tipo) VALUES " +
-                    "(1, 'TWIN'), (2, 'KING')");
+                "('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas,gestion_habitaciones,gestion_clientes,gestion_reportes', 'admin123'), " +
+                "('Recepcionista', 'Recepcionista', 'gestion_reservas,gestion_clientes', 'recep123'), " +
+                "('Housekeeping', 'Housekeeping', 'gestion_habitaciones', 'house123'), " +
+                "('Mantenimiento', 'Mantenimiento', 'gestion_habitaciones', 'maint123')");
+                stmt.executeUpdate("INSERT IGNORE INTO Habitaciones (id_habitacion, tipo, estado) VALUES " +
+                "(1, 'TWIN', 'clean'), (2, 'TWIN', 'clean'), (3, 'TWIN', 'clean'), (4, 'TWIN', 'clean'), (5, 'TWIN', 'clean'), " +
+                "(6, 'KING', 'clean'), (7, 'KING', 'clean'), (8, 'KING', 'clean'), (9, 'KING', 'clean'), (10, 'KING', 'clean'), " +
+                "(11, 'SUPERIOR', 'clean'), (12, 'SUPERIOR', 'clean'), " +
+                "(14, 'SUITE', 'clean'), (15, 'SUITE', 'clean')");
                 System.out.println("Tablas y datos predeterminados verificados en " + dbName);
             } else {
                 System.out.println("Base de datos " + dbName + " ya existe. Conexión establecida.");

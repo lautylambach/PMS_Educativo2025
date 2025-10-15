@@ -2,6 +2,7 @@ package pms.view;
 
 import javax.swing.*;
 import java.awt.*;
+import pms.view.HabitacionView;
 
 public class MainMenuView extends JFrame {
     public MainMenuView(String rol) {
@@ -30,6 +31,11 @@ public class MainMenuView extends JFrame {
                 UsuarioView usuarioView = new UsuarioView();
                 usuarioView.setVisible(true);
             }
+        });
+
+        btnHabitaciones.addActionListener(e -> {
+        HabitacionView habitacionView = new HabitacionView(rol); // Pasa rol para validación
+        habitacionView.setVisible(true);
         });
 
         panel.add(btnUsuarios);
