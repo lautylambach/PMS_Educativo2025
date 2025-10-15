@@ -15,11 +15,17 @@ public class Habitacion {
         this.estado = estado;
     }
 
-    // Getters y Setters
+    // Getters y Setters (mantén los existentes)
     public int getIdHabitacion() { return idHabitacion; }
     public void setIdHabitacion(int idHabitacion) { this.idHabitacion = idHabitacion; }
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    // Sobrescribir toString() para mostrar información legible en JComboBox
+    @Override
+    public String toString() {
+        return "Habitación " + idHabitacion + " (" + tipo + ", " + estado + ")";
+    }
 }

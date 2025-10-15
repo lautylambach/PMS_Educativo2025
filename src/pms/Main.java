@@ -3,7 +3,7 @@ package pms;
 import javax.swing.*;
 import java.sql.*;
 
-import pms.view.LoginView; // Aseguramos que esté importado
+import pms.view.LoginView;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,91 +19,115 @@ public class Main {
     }
 
     private static boolean initializeDatabase() {
-        String url = "jdbc:mysql://localhost:3306/";
+        String urlBase = "jdbc:mysql://localhost:3306/";
         String dbName = "PMS_DB";
         String username = "root";
         String password = "";
 
+        Connection conn = null;
+        Statement stmt = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(url, username, password);
-            Statement stmt = conn.createStatement();
+            System.out.println("Driver JDBC cargado.");
+
+            conn = DriverManager.getConnection(urlBase, username, password);
+            stmt = conn.createStatement();
+            System.out.println("Conexión inicial al servidor MySQL establecida.");
 
             DatabaseMetaData dbmd = conn.getMetaData();
             ResultSet rs = dbmd.getCatalogs();
             boolean dbExists = false;
             while (rs.next()) {
-                if (rs.getString(1).equalsIgnoreCase(dbName)) { // Ignora mayúsculas/minúsculas
+                if (rs.getString(1).equalsIgnoreCase(dbName)) {
                     dbExists = true;
                     break;
                 }
             }
+            rs.close();
 
             if (!dbExists) {
-                try {
-                    stmt.executeUpdate("CREATE DATABASE " + dbName);
-                    System.out.println("Base de datos " + dbName + " creada.");
-                } catch (SQLException e) {
-                    // Ignora el error si la base ya existe (código 1007)
-                    if (e.getErrorCode() != 1007) {
-                        throw e; // Re-lanza otros errores
-                    }
-                    System.out.println("Base de datos " + dbName + " ya existe.");
-                }
+                stmt.executeUpdate("CREATE DATABASE " + dbName);
+                System.out.println("Base de datos " + dbName + " creada.");
+            } else {
+                System.out.println("Base de datos " + dbName + " ya existe.");
+            }
 
-                conn = DriverManager.getConnection(url + dbName, username, password);
+            conn.close();
+            conn = DriverManager.getConnection(urlBase + dbName, username, password);
+            stmt = conn.createStatement();
+            System.out.println("Conexión a " + dbName + " establecida.");
 
-                stmt = conn.createStatement();
-                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Usuarios (" +
-                    "id_usuario INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "nombre VARCHAR(50) NOT NULL, " +
-                    "rol VARCHAR(50) NOT NULL, " +
-                    "permisos VARCHAR(100) NOT NULL, " +
-                    "contrasena VARCHAR(50) NOT NULL)");
-                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Habitaciones (" +
-                    "id_habitacion INT PRIMARY KEY, " +
-                    "tipo VARCHAR(20) NOT NULL, " +
-                    "estado VARCHAR(20) NOT NULL DEFAULT 'clean')");
-                // Crear tabla Clientes
-                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Clientes (" +
-                    "id_cliente INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "nombre VARCHAR(100) NOT NULL, " +
-                    "documento VARCHAR(50) NOT NULL UNIQUE, " +
-                    "correo VARCHAR(100), " +
-                    "telefono VARCHAR(50))");
-                System.out.println("Tabla Clientes verificada/creada.");    
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Usuarios (" +
+                "id_usuario INT PRIMARY KEY AUTO_INCREMENT, " +
+                "nombre VARCHAR(50) NOT NULL, " +
+                "rol VARCHAR(50) NOT NULL, " +
+                "permisos VARCHAR(100) NOT NULL, " +
+                "contrasena VARCHAR(50) NOT NULL)");
+            System.out.println("Tabla Usuarios verificada/creada.");
 
-                stmt.executeUpdate("INSERT IGNORE INTO Usuarios (nombre, rol, permisos, contrasena) VALUES " +
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Habitaciones (" +
+                "id_habitacion INT PRIMARY KEY, " +
+                "tipo VARCHAR(20) NOT NULL, " +
+                "estado VARCHAR(20) NOT NULL DEFAULT 'clean')");
+            System.out.println("Tabla Habitaciones verificada/creada.");
+
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Clientes (" +
+                "id_cliente INT PRIMARY KEY AUTO_INCREMENT, " +
+                "nombre VARCHAR(100) NOT NULL, " +
+                "documento VARCHAR(50) NOT NULL UNIQUE, " +
+                "correo VARCHAR(100), " +
+                "telefono VARCHAR(50))");
+            System.out.println("Tabla Clientes verificada/creada.");
+
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Reservas (" +
+                "id_reserva INT PRIMARY KEY AUTO_INCREMENT, " +
+                "id_cliente INT NOT NULL, " +
+                "id_habitacion INT NOT NULL, " +
+                "fecha_checkin DATE NOT NULL, " +
+                "fecha_checkout DATE NOT NULL, " +
+                "FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente), " +
+                "FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion))");
+            System.out.println("Tabla Reservas verificada/creada.");
+
+            stmt.executeUpdate("INSERT IGNORE INTO Usuarios (nombre, rol, permisos, contrasena) VALUES " +
                 "('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas,gestion_habitaciones,gestion_clientes,gestion_reportes', 'admin123'), " +
-                "('Recepcionista', 'Recepcionista', 'gestion_reservas,gestion_clientes', 'recep123'), " +
+                "('Recepcionista', 'Recepcionista', '', 'recep123'), " +
                 "('Housekeeping', 'Housekeeping', 'gestion_habitaciones', 'house123'), " +
-                "('Mantenimiento', 'Mantenimiento', 'gestion_habitaciones', 'maint123')");
-                stmt.executeUpdate("INSERT IGNORE INTO Habitaciones (id_habitacion, tipo, estado) VALUES " +
+                "('Mantenimiento', 'Mantenimiento', 'gestion_habitaciones', 'maint123'), " +
+                "('Reservas', 'Reservas', 'gestion_reservas,gestion_clientes', 'reserva123')");
+            System.out.println("Usuarios iniciales insertados.");
+
+            stmt.executeUpdate("INSERT IGNORE INTO Habitaciones (id_habitacion, tipo, estado) VALUES " +
                 "(1, 'TWIN', 'clean'), (2, 'TWIN', 'clean'), (3, 'TWIN', 'clean'), (4, 'TWIN', 'clean'), (5, 'TWIN', 'clean'), " +
                 "(6, 'KING', 'clean'), (7, 'KING', 'clean'), (8, 'KING', 'clean'), (9, 'KING', 'clean'), (10, 'KING', 'clean'), " +
                 "(11, 'SUPERIOR', 'clean'), (12, 'SUPERIOR', 'clean'), " +
                 "(14, 'SUITE', 'clean'), (15, 'SUITE', 'clean')");
-                System.out.println("Tablas y datos predeterminados verificados en " + dbName);
-                
-                // Insertar clientes iniciales de ejemplo
-                stmt.executeUpdate("INSERT IGNORE INTO Clientes (nombre, documento, correo, telefono) VALUES " +
-                    "('Juan Perez', '12345678', 'juan@example.com', '123-456-7890'), " +
-                    "('Maria Lopez', '87654321', 'maria@example.com', '987-654-3210')");
-                System.out.println("Clientes iniciales insertados.");
+            System.out.println("Habitaciones iniciales insertadas.");
 
-            } else {
-                System.out.println("Base de datos " + dbName + " ya existe. Conexión establecida.");
-                conn = DriverManager.getConnection(url + dbName, username, password);
-            }
+            stmt.executeUpdate("INSERT IGNORE INTO Clientes (nombre, documento, correo, telefono) VALUES " +
+                "('Juan Perez', '12345678', 'juan@example.com', '123-456-7890'), " +
+                "('Maria Lopez', '87654321', 'maria@example.com', '987-654-3210')");
+            System.out.println("Clientes iniciales insertados.");
 
-            conn.close();
+            stmt.executeUpdate("INSERT IGNORE INTO Reservas (id_cliente, id_habitacion, fecha_checkin, fecha_checkout) VALUES " +
+                "(1, 1, '2025-10-20', '2025-10-22'), " +
+                "(2, 6, '2025-10-21', '2025-10-23')");
+            System.out.println("Reservas iniciales insertadas.");
+
             return true;
         } catch (ClassNotFoundException e) {
             System.out.println("Error: Driver JDBC no encontrado. Asegúrate de que mysql-connector-j-9.4.0.jar esté en lib/ y configurado en el classpath.");
             return false;
         } catch (SQLException e) {
-            System.out.println("Error al inicializar la base de datos: " + e.getMessage());
+            System.out.println("Error SQL al inicializar la base de datos: " + e.getMessage() + " (Código: " + e.getErrorCode() + ")");
             return false;
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar conexión: " + e.getMessage());
+            }
         }
     }
 }

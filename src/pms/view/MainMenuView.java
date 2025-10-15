@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import pms.view.HabitacionView;
 import pms.view.ClienteView;
+import pms.view.ReservaView;
 
 public class MainMenuView extends JFrame {
     public MainMenuView(String rol) {
@@ -22,13 +23,11 @@ public class MainMenuView extends JFrame {
         JButton btnReportes = new JButton("Generar Reportes");
 
         // Habilitar/deshabilitar según rol
-        if (!"Administrador".equals(rol)) {
-            btnUsuarios.setEnabled(false); // Solo Administrador gestiona usuarios
-            btnReportes.setEnabled(false); // Solo Administrador genera reportes
-        }
-        if (!"Administrador".equals(rol) && !"Recepcionista".equals(rol)) {
-        btnClientes.setEnabled(false);
-        }
+        btnUsuarios.setEnabled("Administrador".equals(rol));
+        btnHabitaciones.setEnabled("Administrador".equals(rol) || "Housekeeping".equals(rol) || "Mantenimiento".equals(rol));
+        btnClientes.setEnabled("Administrador".equals(rol) || "Reservas".equals(rol));
+        btnReservas.setEnabled("Administrador".equals(rol) || "Reservas".equals(rol));
+        btnReportes.setEnabled("Administrador".equals(rol));
 
         btnUsuarios.addActionListener(e -> {
             if ("Administrador".equals(rol)) {
@@ -38,13 +37,24 @@ public class MainMenuView extends JFrame {
         });
 
         btnHabitaciones.addActionListener(e -> {
-        HabitacionView habitacionView = new HabitacionView(rol); // Pasa rol para validación
-        habitacionView.setVisible(true);
+            if ("Administrador".equals(rol) || "Housekeeping".equals(rol) || "Mantenimiento".equals(rol)) {
+                HabitacionView habitacionView = new HabitacionView(rol);
+                habitacionView.setVisible(true);
+            }
         });
 
         btnClientes.addActionListener(e -> {
-            ClienteView clienteView = new ClienteView(rol);
-            clienteView.setVisible(true);
+            if ("Administrador".equals(rol) || "Reservas".equals(rol)) {
+                ClienteView clienteView = new ClienteView(rol);
+                clienteView.setVisible(true);
+            }
+        });
+
+        btnReservas.addActionListener(e -> {
+            if ("Administrador".equals(rol) || "Reservas".equals(rol)) {
+                ReservaView reservaView = new ReservaView(rol);
+                reservaView.setVisible(true);
+            }
         });
 
         panel.add(btnUsuarios);

@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 import pms.controller.ClienteController;
 import pms.model.Cliente;
+import pms.model.Reserva;
 
 public class ClienteView extends JFrame {
     private String rolUsuario;
@@ -18,7 +19,7 @@ public class ClienteView extends JFrame {
         this.rolUsuario = rol;
         setTitle("Gestionar Clientes - PMS Educativo");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(1000, 800);
+        setSize(800, 600);
         setLocationRelativeTo(null);
 
         clienteController = new ClienteController();
@@ -67,23 +68,23 @@ public class ClienteView extends JFrame {
         buttonPanel.add(btnListar);
 
         // Habilitar botones según permisos
-        boolean puedeModificar = clienteController.tienePermisoModificacion(rolUsuario); 
+        boolean puedeModificar = "Administrador".equals(rol) || "Reservas".equals(rol);
         btnCrear.setEnabled(puedeModificar);
         btnModificar.setEnabled(puedeModificar);
-        btnBorrar.setEnabled("Administrador".equals(rolUsuario)); // Solo admin
+        btnBorrar.setEnabled("Administrador".equals(rol));
 
         // Tabla clientes
         tableModelClientes = new DefaultTableModel(new Object[]{"ID", "Nombre", "Documento", "Correo", "Teléfono"}, 0);
         tableClientes = new JTable(tableModelClientes);
         JScrollPane scrollClientes = new JScrollPane(tableClientes);
-        /*
-        // Tabla historial reservas (placeholder)
+
+        // Tabla historial reservas
         tableModelHistorial = new DefaultTableModel(new Object[]{"ID Reserva", "Check-In", "Check-Out", "Habitación"}, 0);
         tableHistorial = new JTable(tableModelHistorial);
         JScrollPane scrollHistorial = new JScrollPane(tableHistorial);
         JPanel historialPanel = new JPanel(new BorderLayout());
-        historialPanel.add(new JLabel("Historial de Reservas (seleccione un cliente para ver)"), BorderLayout.NORTH);
-        historialPanel.add(scrollHistorial, BorderLayout.CENTER); */
+        historialPanel.add(new JLabel("Historial de Reservas"), BorderLayout.NORTH);
+        historialPanel.add(scrollHistorial, BorderLayout.CENTER);
 
         // Acciones
         btnCrear.addActionListener(e -> {
@@ -131,23 +132,21 @@ public class ClienteView extends JFrame {
 
         btnListar.addActionListener(e -> updateTableClientes());
 
-        /*// Actualizar historial al seleccionar cliente
         tableClientes.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = tableClientes.getSelectedRow();
             if (selectedRow != -1) {
                 int id = (int) tableModelClientes.getValueAt(selectedRow, 0);
                 updateTableHistorial(id);
             }
-        });*/
+        });
 
         // Layout
         panel.add(inputPanel, BorderLayout.NORTH);
         panel.add(buttonPanel, BorderLayout.CENTER);
         panel.add(scrollClientes, BorderLayout.SOUTH);
         add(panel, BorderLayout.CENTER);
-        /*add(historialPanel, BorderLayout.EAST); */
+        add(historialPanel, BorderLayout.EAST);
 
-        // Cargar lista inicial
         updateTableClientes();
     }
 
@@ -165,14 +164,10 @@ public class ClienteView extends JFrame {
         }
     }
 
-    /*private void updateTableHistorial(int idCliente) {
+    private void updateTableHistorial(int idCliente) {
         tableModelHistorial.setRowCount(0);
-        // TODO: Cargar reservas reales
         for (Reserva reserva : clienteController.getHistorialReservas(idCliente)) {
             tableModelHistorial.addRow(new Object[]{reserva.getIdReserva(), reserva.getFechaCheckIn(), reserva.getFechaCheckOut(), reserva.getIdHabitacion()});
         }
-        if (tableModelHistorial.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "No hay reservas para este cliente (aún).", "Info", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }*/
+    }
 }
