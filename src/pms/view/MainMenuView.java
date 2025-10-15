@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainMenuView extends JFrame {
-    public MainMenuView() {
+    public MainMenuView(String rol) {
         setTitle("Menú Principal - PMS Educativo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 300);
@@ -18,6 +18,12 @@ public class MainMenuView extends JFrame {
         JButton btnClientes = new JButton("Gestionar Clientes");
         JButton btnReservas = new JButton("Gestionar Reservas");
         JButton btnReportes = new JButton("Generar Reportes");
+
+        // Habilitar/deshabilitar según rol
+        if (!"Administrador".equals(rol)) {
+            btnUsuarios.setEnabled(false); // Solo Administrador gestiona usuarios
+            btnReportes.setEnabled(false); // Solo Administrador genera reportes
+        }
 
         panel.add(btnUsuarios);
         panel.add(btnHabitaciones);

@@ -3,6 +3,7 @@ package pms.view;
 import javax.swing.*;
 import java.awt.*;
 import pms.controller.LoginController;
+import pms.model.Usuario;
 
 public class LoginView extends JFrame {
     private JTextField userField;
@@ -43,9 +44,10 @@ public class LoginView extends JFrame {
             String username = userField.getText();
             String password = new String(passField.getPassword());
             LoginController controller = new LoginController();
-            if (controller.validateLogin(username, password)) {
-                dispose(); // Cierra la ventana de login
-                MainMenuView mainMenuView = new MainMenuView();
+            Usuario usuario = controller.validateLogin(username, password);
+            if (usuario != null) {
+                dispose();
+                MainMenuView mainMenuView = new MainMenuView(usuario.getRol());
                 mainMenuView.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);
