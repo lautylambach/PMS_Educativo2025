@@ -3,6 +3,7 @@ package pms.view;
 import javax.swing.*;
 import java.awt.*;
 import pms.view.HabitacionView;
+import pms.view.ClienteView;
 
 public class MainMenuView extends JFrame {
     public MainMenuView(String rol) {
@@ -25,6 +26,9 @@ public class MainMenuView extends JFrame {
             btnUsuarios.setEnabled(false); // Solo Administrador gestiona usuarios
             btnReportes.setEnabled(false); // Solo Administrador genera reportes
         }
+        if (!"Administrador".equals(rol) && !"Recepcionista".equals(rol)) {
+        btnClientes.setEnabled(false);
+        }
 
         btnUsuarios.addActionListener(e -> {
             if ("Administrador".equals(rol)) {
@@ -36,6 +40,11 @@ public class MainMenuView extends JFrame {
         btnHabitaciones.addActionListener(e -> {
         HabitacionView habitacionView = new HabitacionView(rol); // Pasa rol para validación
         habitacionView.setVisible(true);
+        });
+
+        btnClientes.addActionListener(e -> {
+            ClienteView clienteView = new ClienteView(rol);
+            clienteView.setVisible(true);
         });
 
         panel.add(btnUsuarios);

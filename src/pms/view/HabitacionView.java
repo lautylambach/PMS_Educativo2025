@@ -18,7 +18,7 @@ public class HabitacionView extends JFrame {
         this.rolUsuario = rol;
         setTitle("Gestionar Habitaciones - PMS Educativo");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(600, 400);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
 
         habitacionController = new HabitacionController();

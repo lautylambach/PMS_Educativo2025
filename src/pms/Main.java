@@ -64,6 +64,14 @@ public class Main {
                     "id_habitacion INT PRIMARY KEY, " +
                     "tipo VARCHAR(20) NOT NULL, " +
                     "estado VARCHAR(20) NOT NULL DEFAULT 'clean')");
+                // Crear tabla Clientes
+                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Clientes (" +
+                    "id_cliente INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "nombre VARCHAR(100) NOT NULL, " +
+                    "documento VARCHAR(50) NOT NULL UNIQUE, " +
+                    "correo VARCHAR(100), " +
+                    "telefono VARCHAR(50))");
+                System.out.println("Tabla Clientes verificada/creada.");    
 
                 stmt.executeUpdate("INSERT IGNORE INTO Usuarios (nombre, rol, permisos, contrasena) VALUES " +
                 "('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas,gestion_habitaciones,gestion_clientes,gestion_reportes', 'admin123'), " +
@@ -76,6 +84,13 @@ public class Main {
                 "(11, 'SUPERIOR', 'clean'), (12, 'SUPERIOR', 'clean'), " +
                 "(14, 'SUITE', 'clean'), (15, 'SUITE', 'clean')");
                 System.out.println("Tablas y datos predeterminados verificados en " + dbName);
+                
+                // Insertar clientes iniciales de ejemplo
+                stmt.executeUpdate("INSERT IGNORE INTO Clientes (nombre, documento, correo, telefono) VALUES " +
+                    "('Juan Perez', '12345678', 'juan@example.com', '123-456-7890'), " +
+                    "('Maria Lopez', '87654321', 'maria@example.com', '987-654-3210')");
+                System.out.println("Clientes iniciales insertados.");
+
             } else {
                 System.out.println("Base de datos " + dbName + " ya existe. Conexión establecida.");
                 conn = DriverManager.getConnection(url + dbName, username, password);

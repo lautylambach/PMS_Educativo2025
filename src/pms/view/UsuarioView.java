@@ -16,7 +16,7 @@ public class UsuarioView extends JFrame {
     public UsuarioView() {
         setTitle("Gestionar Usuarios - PMS Educativo");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
 
         usuarioController = new UsuarioController();
