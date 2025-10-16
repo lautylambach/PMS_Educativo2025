@@ -85,13 +85,14 @@ public class Main {
                 "id_habitacion INT NOT NULL, " +
                 "fecha_checkin DATE NOT NULL, " +
                 "fecha_checkout DATE NOT NULL, " +
+                "notas TEXT, " +
                 "FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente), " +
                 "FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion))");
             System.out.println("Tabla Reservas verificada/creada.");
 
             stmt.executeUpdate("INSERT IGNORE INTO Usuarios (nombre, rol, permisos, contrasena) VALUES " +
                 "('Administrador', 'Administrador', 'gestion_usuarios,gestion_reservas,gestion_habitaciones,gestion_clientes,gestion_reportes', 'admin123'), " +
-                "('Recepcionista', 'Recepcionista', '', 'recep123'), " +
+                "('Recepcionista', 'Recepcionista', 'gestion_reservas', 'recep123'), " +
                 "('Housekeeping', 'Housekeeping', 'gestion_habitaciones', 'house123'), " +
                 "('Mantenimiento', 'Mantenimiento', 'gestion_habitaciones', 'maint123'), " +
                 "('Reservas', 'Reservas', 'gestion_reservas,gestion_clientes', 'reserva123')");
@@ -109,9 +110,9 @@ public class Main {
                 "('Maria Lopez', '87654321', 'maria@example.com', '987-654-3210')");
             System.out.println("Clientes iniciales insertados.");
 
-            stmt.executeUpdate("INSERT IGNORE INTO Reservas (id_cliente, id_habitacion, fecha_checkin, fecha_checkout) VALUES " +
-                "(1, 1, '2025-10-20', '2025-10-22'), " +
-                "(2, 6, '2025-10-21', '2025-10-23')");
+            stmt.executeUpdate("INSERT IGNORE INTO Reservas (id_cliente, id_habitacion, fecha_checkin, fecha_checkout, notas) VALUES " +
+                "(1, 1, '2025-10-20', '2025-10-22', 'Nota inicial para Juan'), " +
+                "(2, 6, '2025-10-21', '2025-10-23', 'Reserva con desayuno incluido')");
             System.out.println("Reservas iniciales insertadas.");
 
             return true;

@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.swing.table.DefaultTableModel;
 import pms.controller.ReservaController;
 import pms.controller.ClienteController;
 import pms.model.Cliente;
@@ -18,31 +19,35 @@ public class ReservaView extends JFrame {
     private ClienteController clienteController;
     private JComboBox<Cliente> cmbClientes;
     private JComboBox<Habitacion> cmbHabitaciones;
-    private JTextField txtFechaCheckIn, txtFechaCheckOut;
-    private JButton btnCrear;
+    private JTextField txtFechaCheckIn, txtFechaCheckOut, txtNotas;
+    private JTable tableReservas;
+    private DefaultTableModel tableModelReservas;
+    private JButton btnCrear, btnModificar, btnCancelar;
 
     public ReservaView(String rol) {
         this.rolUsuario = rol;
-        setTitle("Crear Reserva - PMS Educativo");
+        setTitle("Gestionar Reservas - PMS Educativo");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(500, 350);
+        setSize(600, 400);
         setLocationRelativeTo(null);
 
         reservaController = new ReservaController();
         clienteController = new ClienteController();
 
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Panel de entrada
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Cliente
         gbc.gridx = 0;
         gbc.gridy = 0;
-        panel.add(new JLabel("Cliente:"), gbc);
+        inputPanel.add(new JLabel("Cliente:"), gbc);
         gbc.gridx = 1;
         cmbClientes = new JComboBox<>();
-        // Configurar renderizado personalizado para Cliente
         cmbClientes.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -54,20 +59,16 @@ public class ReservaView extends JFrame {
                 return this;
             }
         });
-        // Cargar clientes
         for (Cliente cliente : clienteController.listarClientes()) {
-            System.out.println("Cargando cliente: " + cliente.getNombre()); // Debug
             cmbClientes.addItem(cliente);
         }
-        panel.add(cmbClientes, gbc);
+        inputPanel.add(cmbClientes, gbc);
 
-        // Habitación
         gbc.gridx = 0;
         gbc.gridy = 1;
-        panel.add(new JLabel("Habitación:"), gbc);
+        inputPanel.add(new JLabel("Habitación:"), gbc);
         gbc.gridx = 1;
         cmbHabitaciones = new JComboBox<>();
-        // Configurar renderizado personalizado para Habitacion
         cmbHabitaciones.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -79,83 +80,149 @@ public class ReservaView extends JFrame {
                 return this;
             }
         });
-        panel.add(cmbHabitaciones, gbc);
+        inputPanel.add(cmbHabitaciones, gbc);
 
-        // Fechas
         gbc.gridx = 0;
         gbc.gridy = 2;
-        panel.add(new JLabel("Check-In (YYYY-MM-DD):"), gbc);
+        inputPanel.add(new JLabel("Check-In (YYYY-MM-DD):"), gbc);
         gbc.gridx = 1;
         txtFechaCheckIn = new JTextField(12);
-        panel.add(txtFechaCheckIn, gbc);
+        inputPanel.add(txtFechaCheckIn, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        panel.add(new JLabel("Check-Out (YYYY-MM-DD):"), gbc);
+        inputPanel.add(new JLabel("Check-Out (YYYY-MM-DD):"), gbc);
         gbc.gridx = 1;
         txtFechaCheckOut = new JTextField(12);
-        panel.add(txtFechaCheckOut, gbc);
+        inputPanel.add(txtFechaCheckOut, gbc);
 
-        // Botón
         gbc.gridx = 0;
         gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        btnCrear = new JButton("Crear Reserva");
-        panel.add(btnCrear, gbc);
+        inputPanel.add(new JLabel("Notas:"), gbc);
+        gbc.gridx = 1;
+        txtNotas = new JTextField(20);
+        inputPanel.add(txtNotas, gbc);
 
-        // Listeners para actualizar habitaciones disponibles
+        // Panel de botones
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        btnCrear = new JButton("Crear Reserva");
+        btnModificar = new JButton("Modificar Reserva");
+        btnCancelar = new JButton("Cancelar Reserva");
+        buttonPanel.add(btnCrear);
+        buttonPanel.add(btnModificar);
+        buttonPanel.add(btnCancelar);
+
+        // Habilitar botones según permisos
+        boolean hasPermission = "Administrador".equals(rol) || "Recepcionista".equals(rol) || "Reservas".equals(rol);
+        btnCrear.setEnabled(hasPermission);
+        btnModificar.setEnabled(hasPermission);
+        btnCancelar.setEnabled(hasPermission);
+        if (!hasPermission) {
+            JOptionPane.showMessageDialog(this, "No tienes permiso para gestionar reservas.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+
+        // Tabla de reservas
+        tableModelReservas = new DefaultTableModel(new Object[]{"ID", "Cliente", "Habitación", "Check-In", "Check-Out", "Notas"}, 0);
+        tableReservas = new JTable(tableModelReservas);
+        JScrollPane scrollPane = new JScrollPane(tableReservas);
+        updateTableReservas();
+
+        // Listeners
+        btnCrear.addActionListener(e -> crearReserva());
+        btnModificar.addActionListener(e -> modificarReserva());
+        btnCancelar.addActionListener(e -> cancelarReserva());
         txtFechaCheckIn.addActionListener(e -> updateHabitacionesDisponibles());
         txtFechaCheckOut.addActionListener(e -> updateHabitacionesDisponibles());
 
-        // Acción del botón crear
-        btnCrear.addActionListener(e -> crearReserva());
+        // Layout
+        panel.add(inputPanel, BorderLayout.NORTH);
+        panel.add(buttonPanel, BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.SOUTH);
 
-        // Deshabilitar si no tiene permisos
-        if (!"Administrador".equals(rol) && !"Reservas".equals(rol)) {
-            btnCrear.setEnabled(false);
-            JOptionPane.showMessageDialog(this, "No tienes permiso para crear reservas.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        }
-
-        // Valores por defecto para testing
         txtFechaCheckIn.setText("2025-10-25");
         txtFechaCheckOut.setText("2025-10-27");
         updateHabitacionesDisponibles();
 
         add(panel);
-        pack();
     }
 
     private void crearReserva() {
         try {
             Cliente cliente = (Cliente) cmbClientes.getSelectedItem();
             Habitacion habitacion = (Habitacion) cmbHabitaciones.getSelectedItem();
-            
             if (cliente == null || habitacion == null) {
                 JOptionPane.showMessageDialog(this, "Seleccione cliente y habitación.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setLenient(false);
             Date fechaCheckIn = new Date(sdf.parse(txtFechaCheckIn.getText()).getTime());
             Date fechaCheckOut = new Date(sdf.parse(txtFechaCheckOut.getText()).getTime());
-
             if (fechaCheckIn.after(fechaCheckOut)) {
                 JOptionPane.showMessageDialog(this, "Check-Out debe ser después de Check-In.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            Reserva reserva = new Reserva(0, cliente.getIdCliente(), habitacion.getIdHabitacion(), fechaCheckIn, fechaCheckOut);
+            Reserva reserva = new Reserva(0, cliente.getIdCliente(), habitacion.getIdHabitacion(), fechaCheckIn, fechaCheckOut, txtNotas.getText());
             if (reservaController.crearReserva(reserva, rolUsuario)) {
-                JOptionPane.showMessageDialog(this, "Reserva creada exitosamente para " + cliente.getNombre() + 
-                    " en habitación " + habitacion.getIdHabitacion(), "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                dispose();
+                JOptionPane.showMessageDialog(this, "Reserva creada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                updateTableReservas();
+                clearFields();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al crear reserva o permiso insuficiente.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (ParseException ex) {
-            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Use YYYY-MM-DD (ej: 2025-10-25).", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Use YYYY-MM-DD.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void modificarReserva() {
+        int selectedRow = tableReservas.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una reserva para modificar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            int idReserva = (int) tableModelReservas.getValueAt(selectedRow, 0);
+            Cliente cliente = (Cliente) cmbClientes.getSelectedItem();
+            Habitacion habitacion = (Habitacion) cmbHabitaciones.getSelectedItem();
+            if (cliente == null || habitacion == null) {
+                JOptionPane.showMessageDialog(this, "Seleccione cliente y habitación.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setLenient(false);
+            Date fechaCheckIn = new Date(sdf.parse(txtFechaCheckIn.getText()).getTime());
+            Date fechaCheckOut = new Date(sdf.parse(txtFechaCheckOut.getText()).getTime());
+            if (fechaCheckIn.after(fechaCheckOut)) {
+                JOptionPane.showMessageDialog(this, "Check-Out debe ser después de Check-In.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Reserva reserva = new Reserva(idReserva, cliente.getIdCliente(), habitacion.getIdHabitacion(), fechaCheckIn, fechaCheckOut, txtNotas.getText());
+            if (reservaController.modificarReserva(reserva, rolUsuario)) {
+                JOptionPane.showMessageDialog(this, "Reserva modificada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                updateTableReservas();
+                clearFields();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al modificar reserva o permiso insuficiente.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Use YYYY-MM-DD.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void cancelarReserva() {
+        int selectedRow = tableReservas.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una reserva para cancelar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int idReserva = (int) tableModelReservas.getValueAt(selectedRow, 0);
+        if (reservaController.cancelarReserva(idReserva, rolUsuario)) {
+            JOptionPane.showMessageDialog(this, "Reserva cancelada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            updateTableReservas();
+            clearFields();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cancelar reserva o permiso insuficiente.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -164,27 +231,40 @@ public class ReservaView extends JFrame {
             if (txtFechaCheckIn.getText().isEmpty() || txtFechaCheckOut.getText().isEmpty()) {
                 return;
             }
-            
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date fechaCheckIn = new Date(sdf.parse(txtFechaCheckIn.getText()).getTime());
             Date fechaCheckOut = new Date(sdf.parse(txtFechaCheckOut.getText()).getTime());
-            
             cmbHabitaciones.removeAllItems();
             List<Habitacion> disponibles = reservaController.getHabitacionesDisponibles(fechaCheckIn, fechaCheckOut);
-            
-            System.out.println("Habitaciones disponibles para " + fechaCheckIn + " a " + fechaCheckOut + ": " + disponibles.size());
-            
             if (disponibles.isEmpty()) {
                 cmbHabitaciones.addItem(new Habitacion(0, "Ninguna disponible", ""));
                 JOptionPane.showMessageDialog(this, "No hay habitaciones disponibles para las fechas seleccionadas.", "Info", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 for (Habitacion h : disponibles) {
-                    System.out.println("Agregando habitación: " + h.toString());
                     cmbHabitaciones.addItem(h);
                 }
             }
         } catch (ParseException e) {
             System.out.println("Error parsing fechas para disponibilidad: " + e.getMessage());
         }
+    }
+
+    private void updateTableReservas() {
+        tableModelReservas.setRowCount(0);
+        for (Reserva reserva : reservaController.listarReservas(rolUsuario)) {
+            Cliente cliente = clienteController.getClientePorId(reserva.getIdCliente());
+            String clienteNombre = (cliente != null) ? cliente.getNombre() : "Desconocido";
+            tableModelReservas.addRow(new Object[]{
+                reserva.getIdReserva(), clienteNombre, reserva.getIdHabitacion(),
+                reserva.getFechaCheckIn(), reserva.getFechaCheckOut(), reserva.getNotas()
+            });
+        }
+    }
+
+    private void clearFields() {
+        txtFechaCheckIn.setText("");
+        txtFechaCheckOut.setText("");
+        txtNotas.setText("");
+        updateHabitacionesDisponibles();
     }
 }

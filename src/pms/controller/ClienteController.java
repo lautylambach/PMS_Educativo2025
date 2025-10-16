@@ -49,4 +49,12 @@ public class ClienteController {
         }
         return true;
     }
+    public Cliente getClientePorId(int idCliente) {
+    for (Cliente cliente : clienteDAO.listar()) {
+        if (cliente.getIdCliente() == idCliente) {
+            return cliente;
+        }
+    }
+    return null;
+}
 }

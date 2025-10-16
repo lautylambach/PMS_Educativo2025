@@ -65,7 +65,7 @@ public class ClienteDAO {
             while (rs.next()) {
                 Cliente c = new Cliente(rs.getInt("id_cliente"), rs.getString("nombre"),
                         rs.getString("documento"), rs.getString("correo"), rs.getString("telefono"));
-                // TODO: Cargar historial de reservas aquí cuando implementemos Reservas
+                
                 clientes.add(c);
             }
         } catch (SQLException e) {

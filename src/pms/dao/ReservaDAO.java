@@ -12,17 +12,65 @@ public class ReservaDAO {
     private static final String DB_PASSWORD = "";
 
     public boolean crear(Reserva reserva) {
-        String sql = "INSERT INTO Reservas (id_cliente, id_habitacion, fecha_checkin, fecha_checkout) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Reservas (id_cliente, id_habitacion, fecha_checkin, fecha_checkout, notas) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, reserva.getIdCliente());
             pstmt.setInt(2, reserva.getIdHabitacion());
             pstmt.setDate(3, reserva.getFechaCheckIn());
             pstmt.setDate(4, reserva.getFechaCheckOut());
+            pstmt.setString(5, reserva.getNotas());
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.out.println("Error al crear reserva: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public List<Reserva> listarReservas() {
+        List<Reserva> reservas = new ArrayList<>();
+        String sql = "SELECT * FROM Reservas";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                reservas.add(new Reserva(rs.getInt("id_reserva"), rs.getInt("id_cliente"),
+                    rs.getInt("id_habitacion"), rs.getDate("fecha_checkin"), rs.getDate("fecha_checkout"), rs.getString("notas")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar reservas: " + e.getMessage());
+        }
+        return reservas;
+    }
+
+    public boolean modificar(Reserva reserva) {
+        String sql = "UPDATE Reservas SET id_cliente = ?, id_habitacion = ?, fecha_checkin = ?, fecha_checkout = ?, notas = ? WHERE id_reserva = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, reserva.getIdCliente());
+            pstmt.setInt(2, reserva.getIdHabitacion());
+            pstmt.setDate(3, reserva.getFechaCheckIn());
+            pstmt.setDate(4, reserva.getFechaCheckOut());
+            pstmt.setString(5, reserva.getNotas());
+            pstmt.setInt(6, reserva.getIdReserva());
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al modificar reserva: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean cancelar(int idReserva) {
+        String sql = "DELETE FROM Reservas WHERE id_reserva = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idReserva);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al cancelar reserva: " + e.getMessage());
             return false;
         }
     }
@@ -62,7 +110,7 @@ public class ReservaDAO {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 reservas.add(new Reserva(rs.getInt("id_reserva"), rs.getInt("id_cliente"),
-                        rs.getInt("id_habitacion"), rs.getDate("fecha_checkin"), rs.getDate("fecha_checkout")));
+                    rs.getInt("id_habitacion"), rs.getDate("fecha_checkin"), rs.getDate("fecha_checkout"), rs.getString("notas")));
             }
         } catch (SQLException e) {
             System.out.println("Error al listar reservas por cliente: " + e.getMessage());

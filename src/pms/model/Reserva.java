@@ -8,17 +8,19 @@ public class Reserva {
     private int idHabitacion;
     private Date fechaCheckIn;
     private Date fechaCheckOut;
+    private String notas;
 
     // Constructor vacío
     public Reserva() {}
 
     // Constructor con todos los campos
-    public Reserva(int idReserva, int idCliente, int idHabitacion, Date fechaCheckIn, Date fechaCheckOut) {
+    public Reserva(int idReserva, int idCliente, int idHabitacion, Date fechaCheckIn, Date fechaCheckOut, String notas) {
         this.idReserva = idReserva;
         this.idCliente = idCliente;
         this.idHabitacion = idHabitacion;
         this.fechaCheckIn = fechaCheckIn;
         this.fechaCheckOut = fechaCheckOut;
+        this.notas = notas;
     }
 
     // Getters y Setters
@@ -32,4 +34,11 @@ public class Reserva {
     public void setFechaCheckIn(Date fechaCheckIn) { this.fechaCheckIn = fechaCheckIn; }
     public Date getFechaCheckOut() { return fechaCheckOut; }
     public void setFechaCheckOut(Date fechaCheckOut) { this.fechaCheckOut = fechaCheckOut; }
+    public String getNotas() { return notas; }
+    public void setNotas(String notas) { this.notas = notas; }
+
+    @Override
+    public String toString() {
+        return "Reserva #" + idReserva + " (Cliente: " + idCliente + ", Hab: " + idHabitacion + ", " + fechaCheckIn + " a " + fechaCheckOut + ")";
+    }
 }
