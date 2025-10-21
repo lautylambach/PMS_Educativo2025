@@ -26,7 +26,7 @@ public class Cliente {
         this.historialReservas = new ArrayList<>();
     }
 
-    // Getters y Setters (mantén los existentes)
+    // Getters y Setters 
     public int getIdCliente() { return idCliente; }
     public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
     public String getNombre() { return nombre; }

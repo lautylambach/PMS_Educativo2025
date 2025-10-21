@@ -14,7 +14,7 @@ public class HabitacionController {
     public boolean modificarEstado(int id, String nuevoEstado, String rolUsuario) {
         // Validar permiso: Administrador siempre puede, o si rol es Housekeeping/Mantenimiento
         if ("Administrador".equals(rolUsuario) || "Housekeeping".equals(rolUsuario) || "Mantenimiento".equals(rolUsuario)) {
-            // Validar estado válido
+            // Validacion de estado
             if (isValidEstado(nuevoEstado)) {
                 return habitacionDAO.modificarEstado(id, nuevoEstado);
             }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class ReservaController {
     private ReservaDAO reservaDAO = new ReservaDAO();
-
+//validacion de permisos de usuario
     public boolean crearReserva(Reserva reserva, String rol) {
         if (!hasPermission(rol, "gestion_reservas")) {
             return false;
@@ -58,7 +58,7 @@ public class ReservaController {
             return false;
         }
         return !reserva.getFechaCheckIn().after(reserva.getFechaCheckOut()) &&
-               !reserva.getFechaCheckIn().before(new Date(System.currentTimeMillis() - 86400000)); // Allow yesterday
+               !reserva.getFechaCheckIn().before(new Date(System.currentTimeMillis() - 86400000)); // No permitir fechas pasadas
     }
 
     private boolean hasPermission(String rol, String requiredPermission) {

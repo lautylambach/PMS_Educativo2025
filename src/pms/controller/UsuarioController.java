@@ -25,7 +25,7 @@ public class UsuarioController {
     public List<Usuario> listarUsuarios() {
         return usuarioDAO.listarUsuarios();
     }
-
+//Validacion de permisos de usuario
     private boolean isValidUsuario(Usuario usuario) {
         return usuario != null && usuario.getNombre() != null && !usuario.getNombre().isEmpty() &&
                usuario.getRol() != null && !usuario.getRol().isEmpty() &&

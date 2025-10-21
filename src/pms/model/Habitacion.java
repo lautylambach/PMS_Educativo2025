@@ -15,7 +15,7 @@ public class Habitacion {
         this.estado = estado;
     }
 
-    // Getters y Setters (mantén los existentes)
+    // Getters y Setters
     public int getIdHabitacion() { return idHabitacion; }
     public void setIdHabitacion(int idHabitacion) { this.idHabitacion = idHabitacion; }
     public String getTipo() { return tipo; }
